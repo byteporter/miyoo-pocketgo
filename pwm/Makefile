@@ -7,7 +7,7 @@ AWK=awk
 
 FREQUENCIES=1000 15000 17000 20000 25000
 
-.PHONY: all
+.PHONY: all clean
 
 all: $(foreach freq,$(FREQUENCIES),switch-pwm-$(freq).sh)
 
