@@ -4,15 +4,23 @@ DTC=dtc
 XZ=xz
 UUENCODE=uuencode
 AWK=awk
+TAR=tar
 
 FREQUENCIES=1000 15000 17000 20000 25000
 
-.PHONY: all clean
+OUTPUT_SCRIPTS=$(foreach freq,$(FREQUENCIES),switch-pwm-$(freq).sh)
 
-all: $(foreach freq,$(FREQUENCIES),switch-pwm-$(freq).sh)
+.PHONY: all clean archive
+
+all: $(OUTPUT_SCRIPTS)
+
+archive: switch-pwm-scripts.tgz
 
 clean:
-	$(RM) suniv-f1c500s-miyoo-pwm-*.dts suniv-f1c500s-miyoo-pwm-*.dtb switch-pwm-*.sh
+	$(RM) suniv-f1c500s-miyoo-pwm-*.dts suniv-f1c500s-miyoo-pwm-*.dtb switch-pwm-*.sh switch-pwm-scripts.tgz
+
+switch-pwm-scripts.tgz: $(OUTPUT_SCRIPTS)
+	$(TAR) cfz $@ $^
 
 suniv-f1c500s-miyoo-pwm-%.dts: suniv-f1c500s-miyoo.dts.m4
 	$(M4) -P -D__PERIOD_NS="$$($(AWK) 'BEGIN { printf("%.0f", 1/$* * 10^9); }')" $< >$@
