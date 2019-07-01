@@ -1,19 +1,24 @@
 SHELL=/bin/sh
-M4=/usr/bin/m4
-DTC=/usr/bin/dtc
+M4=m4
+DTC=dtc
+XZ=xz
+UUENCODE=uuencode
+AWK=awk
 
-FREQUENCY=1000
-PERIOD_NS=$(shell awk 'BEGIN {print 1/$(FREQUENCY) * 1000000000;}')
+FREQUENCIES=1000
 
 .PHONY: all
 
-all: suniv-f1c500s-miyoo-pwm-$(FREQUENCY).dtb
+all: $(foreach freq,$(FREQUENCIES),switch-pwm-$(freq).sh)
 
 clean:
-	$(RM) suniv-f1c500s-miyoo-pwm-*.dts suniv-f1c500s-miyoo-pwm-*.dtb
+	$(RM) suniv-f1c500s-miyoo-pwm-*.dts suniv-f1c500s-miyoo-pwm-*.dtb switch-pwm-*.sh
 
-suniv-f1c500s-miyoo-pwm-$(FREQUENCY).dts: suniv-f1c500s-miyoo.dts.m4
-	$(M4) -P -D__PERIOD_NS='$(PERIOD_NS)' $< >$@
+suniv-f1c500s-miyoo-pwm-%.dts: suniv-f1c500s-miyoo.dts.m4
+	$(M4) -P -D__PERIOD_NS="$$($(AWK) 'BEGIN { printf("%.0f", 1/$* * 10^9); }')" $< >$@
 
-suniv-f1c500s-miyoo-pwm-$(FREQUENCY).dtb: suniv-f1c500s-miyoo-pwm-$(FREQUENCY).dts
+suniv-f1c500s-miyoo-pwm-%.dtb: suniv-f1c500s-miyoo-pwm-%.dts
 	$(DTC) -I dts -O dtb -o $@ $<
+
+switch-pwm-%.sh: switch-pwm.sh.m4 suniv-f1c500s-miyoo-pwm-%.dtb
+	$(M4) -P -D__DTB_XZ_B64="$$($(XZ) -c suniv-f1c500s-miyoo-pwm-$*.dtb | $(UUENCODE) -m /dev/stdout)" $< >$@
