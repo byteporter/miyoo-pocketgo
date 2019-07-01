@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 
 devicetree="__DTB_XZ_B64"
 
