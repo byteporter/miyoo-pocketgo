@@ -17,7 +17,7 @@ all: $(OUTPUT_SCRIPTS)
 archive: switch-pwm-scripts.tgz
 
 clean:
-	$(RM) suniv-f1c500s-miyoo-pwm-*.dts suniv-f1c500s-miyoo-pwm-*.dtb switch-pwm-*.sh switch-pwm-scripts.tgz
+	$(RM) suniv-f1c500s-miyoo-pwm-*.dts suniv-f1c500s-miyoo-pwm-*.dtb pwm-overlay-*.dts pwm-overlay-*.dtbo switch-pwm-*.sh switch-pwm-scripts.tgz
 
 switch-pwm-scripts.tgz: $(OUTPUT_SCRIPTS)
 	$(TAR) cfz $@ $^
@@ -26,6 +26,12 @@ suniv-f1c500s-miyoo-pwm-%.dts: suniv-f1c500s-miyoo.dts.m4
 	$(M4) -P -D__PERIOD_NS="$$($(AWK) 'BEGIN { printf("%.0f", 1/$* * 10^9); }')" $< >$@
 
 suniv-f1c500s-miyoo-pwm-%.dtb: suniv-f1c500s-miyoo-pwm-%.dts
+	$(DTC) -I dts -O dtb -o $@ $<
+
+pwm-overlay-%.dts: pwm-overlay.dts.m4
+	$(M4) -P -D__PERIOD_NS="$$($(AWK) 'BEGIN { printf("%.0f", 1/$* * 10^9); }')" $< >$@
+
+pwm-overlay-%.dtbo: pwm-overlay-%.dts
 	$(DTC) -I dts -O dtb -o $@ $<
 
 switch-pwm-%.sh: switch-pwm.sh.m4 suniv-f1c500s-miyoo-pwm-%.dtb
