@@ -2,13 +2,29 @@ FROM debian:stretch-slim
 
 LABEL maintainer=docker@byteporter.com
 
+ENV ARCH=armv5-eabi \
+    LIBC=uclibc \
+    VERSION=bleeding-edge-2018.11-1
+
 RUN apt-get update
 
 RUN apt-get install -y \
     build-essential \
-    && curl \
-    
+    libncurses-dev \
+    bc \
+    flex \
+    bison \
+    curl \
+    vim-tiny
 
-RUN mkdir -p /usr/local/armv5-eabi
+WORKDIR /opt
 
-RUN curl -sLO https://toolchains.bootlin.com/downloads/releases/toolchains/armv5-eabi/tarballs/armv5-eabi--uclibc--bleeding-edge-2018.11-1.tar.bz2 
+RUN curl -LO https://toolchains.bootlin.com/downloads/releases/toolchains/armv5-eabi/tarballs/${ARCH}--${LIBC}--${VERSION}.tar.bz2
+
+RUN tar xfvj ${ARCH}--${LIBC}--${VERSION}.tar.bz2
+
+ENV PATH ${PATH}:/opt/${ARCH}--${LIBC}--${VERSION}/bin
+
+WORKDIR /root
+
+CMD ["/bin/bash"]
