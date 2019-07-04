@@ -1,0 +1,3 @@
+[submodule "kernel/f1c500s_kernel"]
+	path = kernel/f1c500s_kernel
+	url = git@github.com:byteporter/f1c500s_kernel
