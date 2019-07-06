@@ -12,6 +12,10 @@ RUN apt-get install -y \
     build-essential \
     libncurses-dev \
     libssl-dev \
+    python \
+    python-dev \
+    swig \
+    kmod \
     bc \
     flex \
     bison \
@@ -22,10 +26,12 @@ WORKDIR /opt
 
 RUN curl -LO https://toolchains.bootlin.com/downloads/releases/toolchains/armv5-eabi/tarballs/${ARCH}--${LIBC}--${VERSION}.tar.bz2
 
-RUN tar xfvj ${ARCH}--${LIBC}--${VERSION}.tar.bz2
+RUN tar xfj ${ARCH}--${LIBC}--${VERSION}.tar.bz2
 
 ENV PATH ${PATH}:/opt/${ARCH}--${LIBC}--${VERSION}/bin
 
 WORKDIR /root
+
+COPY Makefile .
 
 CMD ["/bin/bash"]
